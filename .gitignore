@@ -1,0 +1,45 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+.DS_Store
+
+# Flask
+instance/
+*.db
+*.sqlite3
+
+# React/Node
+node_modules/
+yuscheduler-frontend/node_modules/
+yuscheduler-frontend/build/
+yuscheduler-frontend/.env*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Coverage
+coverage/
+*.cover
+*.coverage
+
+# Production
+/build
+/dist 
