@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { CssBaseline, Box, Container, Typography, Paper, Divider, IconButton, Link, MenuItem, Select, Skeleton } from "@mui/material";
-import CourseSelector from "./components/CourseSelector";
-import ScheduleResults from "./components/ScheduleResults";
-import Footer from "./components/Footer";
+import React, { useState, useEffect, Suspense, lazy } from "react";
+import { CssBaseline, Box, Container, Typography, Paper, Divider, IconButton, Link, MenuItem, Select, Skeleton, CircularProgress, Fab, Zoom } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import WelcomeTutorial from './components/WelcomeTutorial';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Footer from "./components/Footer";
+
+// Lazy load large components
+const CourseSelector = lazy(() => import("./components/CourseSelector"));
+const ScheduleResults = lazy(() => import("./components/ScheduleResults"));
+const WelcomeTutorial = lazy(() => import("./components/WelcomeTutorial"));
 
 // Default values for timetable grid
 const DEFAULT_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -36,6 +40,8 @@ function App() {
   const [blockedHours, setBlockedHours] = useState([]); // Array of { day, slot }
   const [terms, setTerms] = useState([]);
   const [term, setTerm] = useState("");
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
     fetch("http://localhost:5000/api/terms")
@@ -44,6 +50,19 @@ function App() {
         setTerms(data);
         if (data.length > 0) setTerm(data[0]);
       });
+  }, []);
+
+  useEffect(() => {
+    const hide = localStorage.getItem('yuSchedulerHideTutorial');
+    if (!hide) setTutorialOpen(true);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 300);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleSchedule = (result, selected) => {
@@ -63,13 +82,42 @@ function App() {
     setHasGenerated(false);
   };
 
+  const handleBackToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <>
-      <WelcomeTutorial />
+      <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 120 }}><CircularProgress /></Box>}>
+        <WelcomeTutorial open={tutorialOpen} setOpen={setTutorialOpen} />
+      </Suspense>
       <CssBaseline />
       <Box sx={{ bgcolor: "#f5f6fa", minHeight: "100vh", py: { xs: 1, sm: 2, md: 4 } }}>
         <Container maxWidth="lg" sx={{ px: { xs: 0.5, sm: 2 } }}>
-          <Paper elevation={3} sx={{ p: { xs: 1.5, sm: 2, md: 4 }, mb: { xs: 2, md: 4 } }}>
+          <Paper elevation={3} sx={{ p: { xs: 1.5, sm: 2, md: 4 }, mb: { xs: 2, md: 4 }, position: 'relative' }}>
+            {/* Question mark icon at top right */}
+            <IconButton
+              aria-label="Open tutorial"
+              onClick={() => setTutorialOpen(true)}
+              sx={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                color: 'primary.main',
+                background: '#e3f2fd',
+                fontSize: 26,
+                borderRadius: 2,
+                boxShadow: 1,
+                zIndex: 10,
+                '&:hover': {
+                  background: '#bbdefb',
+                  color: '#1976d2',
+                },
+              }}
+              size="large"
+            >
+              <HelpOutlineIcon fontSize="inherit" />
+            </IconButton>
             {/* Centered Name and Icons above Title */}
             <Box
               sx={{
@@ -199,24 +247,44 @@ function App() {
               </Select>
             </Box>
             <Divider sx={{ my: 2 }} />
-            {term ? (
-              <CourseSelector onSchedule={handleSchedule} blockedHours={blockedHours} term={term} />
-            ) : (
-              <Skeleton variant="rectangular" height={120} sx={{ borderRadius: 2, my: 2 }} />
-            )}
+            <Suspense fallback={<Skeleton variant="rectangular" height={120} sx={{ borderRadius: 2, my: 2 }} />}>
+              {term ? (
+                <CourseSelector onSchedule={handleSchedule} blockedHours={blockedHours} term={term} />
+              ) : (
+                <Skeleton variant="rectangular" height={120} sx={{ borderRadius: 2, my: 2 }} />
+              )}
+            </Suspense>
           </Paper>
-          <ScheduleResults
-            schedules={schedules}
-            warnings={warnings}
-            timeSlots={timeSlots}
-            daysOfWeek={daysOfWeek}
-            selectedCourses={selectedCourses}
-            hasGenerated={hasGenerated}
-            blockedHours={blockedHours}
-            setBlockedHours={setBlockedHours}
-          />
+          <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 120 }}><CircularProgress /></Box>}>
+            <ScheduleResults
+              schedules={schedules}
+              warnings={warnings}
+              timeSlots={timeSlots}
+              daysOfWeek={daysOfWeek}
+              selectedCourses={selectedCourses}
+              hasGenerated={hasGenerated}
+              blockedHours={blockedHours}
+              setBlockedHours={setBlockedHours}
+            />
+          </Suspense>
         </Container>
         <Footer />
+        <Zoom in={showBackToTop}>
+          <Fab
+            color="primary"
+            aria-label="Back to top"
+            onClick={handleBackToTop}
+            sx={{
+              position: 'fixed',
+              bottom: 32,
+              right: 32,
+              zIndex: 1200,
+              boxShadow: 6,
+            }}
+          >
+            <KeyboardArrowUpIcon />
+          </Fab>
+        </Zoom>
       </Box>
     </>
   );

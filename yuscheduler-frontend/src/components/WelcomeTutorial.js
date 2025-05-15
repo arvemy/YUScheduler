@@ -42,14 +42,8 @@ const TIPS = [
 
 const LOCALSTORAGE_KEY = 'yuSchedulerHideTutorial';
 
-export default function WelcomeTutorial() {
-  const [open, setOpen] = useState(false);
+export default function WelcomeTutorial({ open, setOpen }) {
   const [dontShow, setDontShow] = useState(false);
-
-  useEffect(() => {
-    const hide = localStorage.getItem(LOCALSTORAGE_KEY);
-    if (!hide) setOpen(true);
-  }, []);
 
   const handleClose = () => {
     setOpen(false);

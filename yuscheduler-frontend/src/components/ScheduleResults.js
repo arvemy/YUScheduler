@@ -212,6 +212,7 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
                   }}
                   onClick={() => handleSlotHeaderClick(slot)}
                   title="Block/unblock this hour for all days"
+                  aria-label={`Block/unblock all days for time slot ${slot}`}
                 >
                   {slot}
                 </TableCell>
@@ -238,6 +239,7 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
                       ...(idx !== 0 ? { borderLeft: '2px solid #e0e0e0' } : {}),
                     }}
                     onClick={() => handleCellClick(day, slot)}
+                    aria-label={`Block/unblock ${day} at ${slot}`}
                   >
                     <Box sx={{
                       display: 'flex',
@@ -390,7 +392,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
       transition: 'box-shadow 0.3s cubic-bezier(.4,0,.2,1), background 0.3s cubic-bezier(.4,0,.2,1)',
     }}>
       {uniqueWarnings(warnings).map((w, i) => (
-        <Alert severity="warning" key={i} sx={{ mb: 2, borderRadius: 2, boxShadow: 2, fontSize: 16 }}>
+        <Alert severity="warning" key={i} sx={{ mb: 2, borderRadius: 2, boxShadow: 2, fontSize: 16 }} aria-live="polite">
           {w}
         </Alert>
       ))}
@@ -474,6 +476,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
                   opacity: 0.7,
                 },
               }}
+              aria-label="Download schedule options"
             >
               Download Schedule
             </Button>

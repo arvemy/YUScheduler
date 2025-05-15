@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Button,
@@ -31,16 +31,21 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [activeGroup, setActiveGroup] = useState(null);
   const [searchInput, setSearchInput] = useState("");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setLoading(true);
+    setError(null);
     axios
       .get(`${API_BASE}/api/courses?term=${encodeURIComponent(term)}`)
       .then((res) => {
         setCourses(res.data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        setLoading(false);
+        setError('Failed to load courses. Please try again later.');
+      });
     // Fetch section data
     axios
       .get(`${API_BASE}/api/sections?term=${encodeURIComponent(term)}`)
@@ -53,7 +58,7 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
     return sectionData[course] || [];
   };
 
-  const allCourses = Object.values(courses).flat();
+  const allCourses = useMemo(() => Object.values(courses).flat(), [courses]);
 
   const handleSelect = (event, value) => {
     setSelected(value);
@@ -111,7 +116,16 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 200 }}>
-        <CircularProgress />
+        <CircularProgress aria-label="Loading courses" />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: 'column', alignItems: "center", minHeight: 200, color: 'error.main' }} aria-live="polite">
+        <Typography variant="body1" color="error" sx={{ mb: 2 }}>{error}</Typography>
+        <Button variant="outlined" onClick={() => window.location.reload()} aria-label="Reload page">Reload</Button>
       </Box>
     );
   }
@@ -177,7 +191,8 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
                     onDelete={() => toggleCourse(course)}
                     color="primary"
                     variant="outlined"
-                        sx={{ mb: 0, mr: sections.length > 1 ? 0.5 : 0, borderRadius: 2, fontWeight: 500, fontSize: 15, letterSpacing: 0.3, boxShadow: 1, bgcolor: 'background.paper', transition: 'all 0.25s cubic-bezier(.4,0,.2,1)' }}
+                    sx={{ mb: 0, mr: sections.length > 1 ? 0.5 : 0, borderRadius: 2, fontWeight: 500, fontSize: 15, letterSpacing: 0.3, boxShadow: 1, bgcolor: 'background.paper', transition: 'all 0.25s cubic-bezier(.4,0,.2,1)' }}
+                    aria-label={`Remove course ${course}`}
                   />
                       {sections.length > 1 && (
                         <Select
@@ -255,6 +270,7 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
                         transition: 'color 0.25s',
                       },
                     }}
+                    aria-label={`Show courses in group ${prefix}`}
                   />
                 </Grid>
               ))}
@@ -321,6 +337,7 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
                 opacity: 0.7,
               },
             }}
+            aria-label={submitting ? "Generating schedule" : "Generate schedule"}
           >
             {submitting ? "Generating Schedule..." : "Generate Schedule"}
           </Button>
