@@ -143,13 +143,7 @@ def load_courses_data_cached(term):
 
 @app.route('/')
 def index():
-    """Render the main page with grouped course list."""
-    course_list = list(data.keys())
-    grouped_courses = defaultdict(list)
-    for course in course_list:
-        prefix = course.split()[0]
-        grouped_courses[prefix].append(course)
-    return render_template('index.html', grouped_courses=grouped_courses)
+    return "YU Scheduler API is running."
 
 @app.route('/generate_schedule', methods=['POST'])
 def generate_schedule():
