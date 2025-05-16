@@ -154,7 +154,7 @@ function App() {
                 </Typography>
                 <IconButton
                   component={Link}
-                  href="https://github.com/ardakorkmaz"
+                  href="https://github.com/arvem"
                   target="_blank"
                   rel="noopener"
                   aria-label="GitHub"
@@ -176,7 +176,7 @@ function App() {
                 </IconButton>
                 <IconButton
                   component={Link}
-                  href="https://linkedin.com/in/ardakorkmaz"
+                  href="https://linkedin.com/in/2123ardakorkmaz"
                   target="_blank"
                   rel="noopener"
                   aria-label="LinkedIn"
