@@ -271,9 +271,6 @@ function App() {
           </Suspense>
         </Container>
         <Footer />
-        <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
-          Made with ❤️
-        </Typography>
         <Zoom in={showBackToTop}>
           <Fab
             color="primary"
