@@ -35,7 +35,16 @@ const Footer = () => {
           fontFamily: 'Montserrat, Roboto, Arial',
         }}
       >
-        Made with ❤️ for <span style={{ animation: `${dropAnimation} 2s infinite` }}>YOU</span>
+        Made with ❤️ for{' '}
+        <Box
+          component="span"
+          sx={{
+            display: 'inline-block',
+            animation: `${dropAnimation} 2s infinite`
+          }}
+        >
+          YOU
+        </Box>
       </Typography>
     </Box>
   );
