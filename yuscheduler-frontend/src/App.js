@@ -52,7 +52,7 @@ function App() {
         setTerms(data);
         if (data.length > 0) setTerm(data[0]);
       });
-  }, []);
+  }, [API_BASE]);
 
   useEffect(() => {
     const hide = localStorage.getItem('yuSchedulerHideTutorial');
