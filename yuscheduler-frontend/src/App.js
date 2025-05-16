@@ -154,7 +154,7 @@ function App() {
                 </Typography>
                 <IconButton
                   component={Link}
-                  href="https://github.com/arvem"
+                  href="https://github.com/arvemy/YUScheduler"
                   target="_blank"
                   rel="noopener"
                   aria-label="GitHub"

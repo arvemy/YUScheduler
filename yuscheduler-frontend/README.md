@@ -1,6 +1,6 @@
 # YU Scheduler
 
-**YU Scheduler** is a web application for Yaşar University students to plan and generate course schedules easily.
+**YU Scheduler** is a web application for students to plan and generate course schedules easily.
 
 ## Features
 
@@ -54,4 +54,4 @@ MIT License. See [../LICENSE](../LICENSE).
 
 ---
 
-_Made with ❤️ for Yaşar University students._
+_Made with ❤️ for students._
