@@ -42,7 +42,7 @@ Talisman(app)
 limiter = Limiter(
     get_remote_address,
     app=app,
-    default_limits=["100/hour"],  # Default for any other endpoints
+    default_limits=["100/hour"]  # Default for any other endpoints
 )
 
 # Logging
