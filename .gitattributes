@@ -1,0 +1,18 @@
+# Ensure consistent line endings
+* text=auto
+
+# Treat shell scripts as text and always use LF
+*.sh text eol=lf
+
+# Mark Python files
+*.py linguist-language=Python
+
+# Mark JavaScript files
+*.js linguist-language=JavaScript
+*.jsx linguist-language=JavaScript
+
+# Mark JSON files
+*.json linguist-language=JSON
+
+# Mark Markdown files
+*.md linguist-language=Markdown 

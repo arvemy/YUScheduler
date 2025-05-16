@@ -1,7 +1,7 @@
 {
   "short_name": "YU Scheduler",
   "name": "YU Scheduler - Course Timetable Planner",
-  "description": "Plan your courses and generate a conflict-free schedule for Yaşar University.",
+  "description": "Plan your courses and generate a schedule for Yaşar University.",
   "icons": [
     {
       "src": "favicon.ico",

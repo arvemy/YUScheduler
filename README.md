@@ -1,12 +1,12 @@
 # YU Scheduler
 
-A web application for Yaşar University students to plan and generate conflict-free course schedules.
+A web application for Yaşar University students to plan and generate course schedules.
 
 ## Features
 
 - Search and select courses from the university catalog
 - Block out unavailable hours
-- Generate all possible conflict-free schedules
+- Generate all possible schedules
 - Download schedules as PDF or image
 - Modern, responsive UI (React + Material UI)
 - Fast backend API (Flask)

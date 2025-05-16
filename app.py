@@ -5,7 +5,7 @@ Flask backend for YU Scheduler, a course timetable planner for Yaşar University
 
 Features:
 - Provides course and section data from courses.json
-- Generates conflict-free schedules
+- Generates schedules
 - API endpoints for frontend integration
 
 Configuration:
@@ -153,7 +153,7 @@ def index():
 
 @app.route('/generate_schedule', methods=['POST'])
 def generate_schedule():
-    """Generate all valid, conflict-free schedules for selected courses (form POST)."""
+    """Generate all valid schedules for selected courses (form POST)."""
     selected_courses = request.form.getlist('courses')
     
     # Determine which courses have eligible sections

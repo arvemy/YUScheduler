@@ -31,7 +31,7 @@ const TIPS = [
   {
     icon: <EventAvailableIcon color="primary" />, 
     title: 'Generate Schedules',
-    desc: 'Click "Generate Schedules" to see all possible conflict-free timetables.'
+    desc: 'Click "Generate Schedules" to see all possible timetables.'
   },
   {
     icon: <DownloadIcon color="primary" />, 
