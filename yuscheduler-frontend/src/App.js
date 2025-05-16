@@ -43,8 +43,10 @@ function App() {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
+  const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+
   useEffect(() => {
-    fetch("http://localhost:5000/api/terms")
+    fetch(`${API_BASE}/api/terms`)
       .then((res) => res.json())
       .then((data) => {
         setTerms(data);

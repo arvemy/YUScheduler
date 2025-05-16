@@ -19,7 +19,7 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
 
 function CourseSelector({ onSchedule, blockedHours, term }) {
   const [courses, setCourses] = useState({});
