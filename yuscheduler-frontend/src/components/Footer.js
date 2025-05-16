@@ -1,11 +1,5 @@
 import React from 'react';
-import { Box, Typography, keyframes } from '@mui/material';
-
-const dropAnimation = keyframes`
-  0% { transform: translateY(0); }
-  50% { transform: translateY(10px); }
-  100% { transform: translateY(0); }
-`;
+import { Box, Typography } from '@mui/material';
 
 const Footer = () => {
   return (
@@ -35,16 +29,7 @@ const Footer = () => {
           fontFamily: 'Montserrat, Roboto, Arial',
         }}
       >
-        Made with ❤️ for{' '}
-        <Box
-          component="span"
-          sx={{
-            display: 'inline-block',
-            animation: `${dropAnimation} 2s infinite`
-          }}
-        >
-          YOU
-        </Box>
+        Made with ❤️
       </Typography>
     </Box>
   );
