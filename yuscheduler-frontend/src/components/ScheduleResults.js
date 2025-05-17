@@ -342,41 +342,33 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
   const handleDownload = async (type) => {
     if (!scheduleRef.current) return;
 
-    const el = scheduleRef.current;
-    // Find the table inside the container
-    const table = el.querySelector('table');
-    if (!table) return;
+    // Create a hidden container for full-size rendering
+    const original = scheduleRef.current;
+    const clone = original.cloneNode(true);
+    const hiddenContainer = document.createElement('div');
+    hiddenContainer.style.position = 'fixed';
+    hiddenContainer.style.top = '-9999px';
+    hiddenContainer.style.left = '-9999px';
+    hiddenContainer.style.width = 'auto';
+    hiddenContainer.style.overflow = 'visible';
+    hiddenContainer.style.background = 'white';
+    hiddenContainer.appendChild(clone);
+    document.body.appendChild(hiddenContainer);
 
-    // Save original styles
-    const originalTableWidth = table.style.width;
-    const originalTableMinWidth = table.style.minWidth;
-    const originalTableMaxWidth = table.style.maxWidth;
-    const originalElOverflow = el.style.overflow;
-    const originalElWidth = el.style.width;
+    // Remove scroll/size restrictions from the clone
+    clone.classList.remove('timetable-scroll');
+    clone.style.overflow = 'visible';
+    clone.style.width = 'auto';
+    clone.style.maxWidth = 'none';
+    clone.style.maxHeight = 'none';
 
     try {
-      // Expand table to full width
-      table.style.width = table.scrollWidth + 'px';
-      table.style.minWidth = '0';
-      table.style.maxWidth = 'none';
-      el.style.overflow = 'visible';
-      el.style.width = 'auto';
-
-      // Wait for reflow
-      await new Promise(r => setTimeout(r, 100));
-
-      const canvas = await html2canvas(el, {
+      const canvas = await html2canvas(clone, {
         scale: 2,
         useCORS: true,
         logging: false,
+        backgroundColor: '#fff',
       });
-
-      // Restore styles
-      table.style.width = originalTableWidth;
-      table.style.minWidth = originalTableMinWidth;
-      table.style.maxWidth = originalTableMaxWidth;
-      el.style.overflow = originalElOverflow;
-      el.style.width = originalElWidth;
 
       if (type === 'pdf') {
         const imgData = canvas.toDataURL('image/png');
@@ -396,13 +388,10 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
         link.click();
       }
     } catch (error) {
-      // Restore styles in case of error
-      table.style.width = originalTableWidth;
-      table.style.minWidth = originalTableMinWidth;
-      table.style.maxWidth = originalTableMaxWidth;
-      el.style.overflow = originalElOverflow;
-      el.style.width = originalElWidth;
       console.error('Error generating download:', error);
+    } finally {
+      // Clean up
+      document.body.removeChild(hiddenContainer);
     }
     handleMenuClose();
   };
