@@ -343,18 +343,25 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
     if (!scheduleRef.current) return;
 
     const el = scheduleRef.current;
+    // Find the table inside the container
+    const table = el.querySelector('table');
+    if (!table) return;
+
     // Save original styles
-    const originalWidth = el.style.width;
-    const originalOverflow = el.style.overflow;
-    const originalMaxWidth = el.style.maxWidth;
-    const originalScroll = el.scrollLeft;
+    const originalTableWidth = table.style.width;
+    const originalTableMinWidth = table.style.minWidth;
+    const originalTableMaxWidth = table.style.maxWidth;
+    const originalElOverflow = el.style.overflow;
+    const originalElWidth = el.style.width;
 
     try {
-      // Expand to show all content
-      el.style.width = el.scrollWidth + 'px';
+      // Expand table to full width
+      table.style.width = table.scrollWidth + 'px';
+      table.style.minWidth = '0';
+      table.style.maxWidth = 'none';
       el.style.overflow = 'visible';
-      el.style.maxWidth = 'none';
-      el.scrollLeft = 0;
+      el.style.width = 'auto';
+
       // Wait for reflow
       await new Promise(r => setTimeout(r, 100));
 
@@ -365,10 +372,11 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
       });
 
       // Restore styles
-      el.style.width = originalWidth;
-      el.style.overflow = originalOverflow;
-      el.style.maxWidth = originalMaxWidth;
-      el.scrollLeft = originalScroll;
+      table.style.width = originalTableWidth;
+      table.style.minWidth = originalTableMinWidth;
+      table.style.maxWidth = originalTableMaxWidth;
+      el.style.overflow = originalElOverflow;
+      el.style.width = originalElWidth;
 
       if (type === 'pdf') {
         const imgData = canvas.toDataURL('image/png');
@@ -377,10 +385,8 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
           unit: 'mm',
           format: 'a4',
         });
-
         const imgWidth = 297; // A4 width in mm
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
         pdf.save(`schedule-${tab + 1}.pdf`);
       } else if (type === 'image') {
@@ -391,10 +397,11 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
       }
     } catch (error) {
       // Restore styles in case of error
-      el.style.width = originalWidth;
-      el.style.overflow = originalOverflow;
-      el.style.maxWidth = originalMaxWidth;
-      el.scrollLeft = originalScroll;
+      table.style.width = originalTableWidth;
+      table.style.minWidth = originalTableMinWidth;
+      table.style.maxWidth = originalTableMaxWidth;
+      el.style.overflow = originalElOverflow;
+      el.style.width = originalElWidth;
       console.error('Error generating download:', error);
     }
     handleMenuClose();
