@@ -55,7 +55,7 @@ function getCourseColor(course, courseColorMap, colorPalette) {
   return courseColorMap[course];
 }
 
-const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWeek, blockedHours, setBlockedHours, tableRef }) {
+const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWeek, blockedHours, setBlockedHours }) {
   // Memoize grid and courseColorMap
   const { grid, courseColorMap } = useMemo(() => {
     const grid = {};
@@ -166,7 +166,7 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
         </Stack>
       )}
       <Box className="timetable-scroll" sx={{ width: '100%', overflowX: 'auto' }}>
-        <Table ref={tableRef} size="small" sx={{ mb: 2, tableLayout: 'fixed', width: '100%', minWidth: { xs: 600, md: '100%' } }}>
+        <Table size="small" sx={{ mb: 2, tableLayout: 'fixed', width: '100%', minWidth: { xs: 600, md: '100%' } }}>
         <TableHead>
           <TableRow>
             <TableCell sx={{ height: 72, borderRight: '2px solid #e0e0e0', width: 90, minWidth: 90, maxWidth: 90 }}>Time</TableCell>
@@ -323,7 +323,7 @@ function uniqueWarnings(warnings) {
 
 const ScheduleResults = React.memo(function ScheduleResults({ schedules, warnings, timeSlots, daysOfWeek, selectedCourses, hasGenerated, blockedHours, setBlockedHours }) {
   const [tab, setTab] = React.useState(0);
-  const tableRef = React.useRef(null);
+  const scheduleRef = React.useRef(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   // Reset tab to 0 when schedules change
@@ -340,14 +340,15 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
   };
 
   const handleDownload = async (type) => {
-    if (!tableRef.current) return;
+    if (!scheduleRef.current) return;
+
     try {
-      const canvas = await html2canvas(tableRef.current, {
+      const canvas = await html2canvas(scheduleRef.current, {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#fff',
       });
+
       if (type === 'pdf') {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF({
@@ -355,8 +356,10 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
           unit: 'mm',
           format: 'a4',
         });
+
         const imgWidth = 297; // A4 width in mm
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
         pdf.save(`schedule-${tab + 1}.pdf`);
       } else if (type === 'image') {
@@ -543,7 +546,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
           </Tabs>
         </>
       )}
-      <Box ref={tableRef}>
+      <Box ref={scheduleRef}>
         {showTable && (
           <Timetable
             schedule={schedules.length > 0 ? schedules[tab] : { sections: [] }}
@@ -551,7 +554,6 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
             daysOfWeek={displayDaysOfWeek}
             blockedHours={blockedHours}
             setBlockedHours={setBlockedHours}
-            tableRef={tableRef}
           />
         )}
       </Box>
