@@ -342,12 +342,33 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
   const handleDownload = async (type) => {
     if (!scheduleRef.current) return;
 
+    const el = scheduleRef.current;
+    // Save original styles
+    const originalWidth = el.style.width;
+    const originalOverflow = el.style.overflow;
+    const originalMaxWidth = el.style.maxWidth;
+    const originalScroll = el.scrollLeft;
+
     try {
-      const canvas = await html2canvas(scheduleRef.current, {
+      // Expand to show all content
+      el.style.width = el.scrollWidth + 'px';
+      el.style.overflow = 'visible';
+      el.style.maxWidth = 'none';
+      el.scrollLeft = 0;
+      // Wait for reflow
+      await new Promise(r => setTimeout(r, 100));
+
+      const canvas = await html2canvas(el, {
         scale: 2,
         useCORS: true,
         logging: false,
       });
+
+      // Restore styles
+      el.style.width = originalWidth;
+      el.style.overflow = originalOverflow;
+      el.style.maxWidth = originalMaxWidth;
+      el.scrollLeft = originalScroll;
 
       if (type === 'pdf') {
         const imgData = canvas.toDataURL('image/png');
@@ -369,6 +390,11 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
         link.click();
       }
     } catch (error) {
+      // Restore styles in case of error
+      el.style.width = originalWidth;
+      el.style.overflow = originalOverflow;
+      el.style.maxWidth = originalMaxWidth;
+      el.scrollLeft = originalScroll;
       console.error('Error generating download:', error);
     }
     handleMenuClose();
