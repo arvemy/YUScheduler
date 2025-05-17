@@ -55,7 +55,7 @@ function getCourseColor(course, courseColorMap, colorPalette) {
   return courseColorMap[course];
 }
 
-const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWeek, blockedHours, setBlockedHours }) {
+const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWeek, blockedHours, setBlockedHours, tableRef }) {
   // Memoize grid and courseColorMap
   const { grid, courseColorMap } = useMemo(() => {
     const grid = {};
@@ -166,7 +166,7 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
         </Stack>
       )}
       <Box className="timetable-scroll" sx={{ width: '100%', overflowX: 'auto' }}>
-        <Table size="small" sx={{ mb: 2, tableLayout: 'fixed', width: '100%', minWidth: { xs: 600, md: '100%' } }}>
+        <Table ref={tableRef} size="small" sx={{ mb: 2, tableLayout: 'fixed', width: '100%', minWidth: { xs: 600, md: '100%' } }}>
         <TableHead>
           <TableRow>
             <TableCell sx={{ height: 72, borderRight: '2px solid #e0e0e0', width: 90, minWidth: 90, maxWidth: 90 }}>Time</TableCell>
@@ -323,7 +323,7 @@ function uniqueWarnings(warnings) {
 
 const ScheduleResults = React.memo(function ScheduleResults({ schedules, warnings, timeSlots, daysOfWeek, selectedCourses, hasGenerated, blockedHours, setBlockedHours }) {
   const [tab, setTab] = React.useState(0);
-  const scheduleRef = React.useRef(null);
+  const tableRef = React.useRef(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   // Reset tab to 0 when schedules change
@@ -340,38 +340,14 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
   };
 
   const handleDownload = async (type) => {
-    if (!scheduleRef.current) return;
-
-    // Create a hidden container for full-size rendering
-    const original = scheduleRef.current;
-    const clone = original.cloneNode(true);
-    // Remove scroll/size restrictions from the clone
-    clone.classList.remove('timetable-scroll');
-    // Set the clone's width to its scrollWidth (full content width)
-    document.body.appendChild(clone); // temporarily add to measure scrollWidth
-    const fullWidth = clone.scrollWidth;
-    clone.style.width = fullWidth + 'px';
-    document.body.removeChild(clone);
-
-    const hiddenContainer = document.createElement('div');
-    hiddenContainer.style.position = 'fixed';
-    hiddenContainer.style.top = '-9999px';
-    hiddenContainer.style.left = '-9999px';
-    hiddenContainer.style.width = fullWidth + 'px';
-    hiddenContainer.style.overflow = 'visible';
-    hiddenContainer.style.background = 'white';
-    hiddenContainer.appendChild(clone);
-    document.body.appendChild(hiddenContainer);
-
+    if (!tableRef.current) return;
     try {
-      const canvas = await html2canvas(clone, {
+      const canvas = await html2canvas(tableRef.current, {
         scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#fff',
-        width: fullWidth,
       });
-
       if (type === 'pdf') {
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF({
@@ -391,9 +367,6 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
       }
     } catch (error) {
       console.error('Error generating download:', error);
-    } finally {
-      // Clean up
-      document.body.removeChild(hiddenContainer);
     }
     handleMenuClose();
   };
@@ -570,7 +543,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
           </Tabs>
         </>
       )}
-      <Box ref={scheduleRef}>
+      <Box ref={tableRef}>
         {showTable && (
           <Timetable
             schedule={schedules.length > 0 ? schedules[tab] : { sections: [] }}
@@ -578,6 +551,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
             daysOfWeek={displayDaysOfWeek}
             blockedHours={blockedHours}
             setBlockedHours={setBlockedHours}
+            tableRef={tableRef}
           />
         )}
       </Box>
