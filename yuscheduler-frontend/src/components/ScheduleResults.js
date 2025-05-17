@@ -346,21 +346,19 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
     const original = scheduleRef.current;
     const clone = original.cloneNode(true);
     const hiddenContainer = document.createElement('div');
+    // Match the width of the visible table
+    const rect = original.getBoundingClientRect();
     hiddenContainer.style.position = 'fixed';
     hiddenContainer.style.top = '-9999px';
     hiddenContainer.style.left = '-9999px';
-    hiddenContainer.style.width = 'auto';
+    hiddenContainer.style.width = rect.width + 'px';
     hiddenContainer.style.overflow = 'visible';
     hiddenContainer.style.background = 'white';
     hiddenContainer.appendChild(clone);
     document.body.appendChild(hiddenContainer);
 
-    // Remove scroll/size restrictions from the clone
-    clone.classList.remove('timetable-scroll');
-    clone.style.overflow = 'visible';
-    clone.style.width = 'auto';
-    clone.style.maxWidth = 'none';
-    clone.style.maxHeight = 'none';
+    // Do NOT change width, font size, or other styles of the clone
+    // Only ensure overflow is visible on the container
 
     try {
       const canvas = await html2canvas(clone, {
@@ -368,6 +366,8 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
         useCORS: true,
         logging: false,
         backgroundColor: '#fff',
+        width: rect.width,
+        // height: rect.height, // let html2canvas determine height
       });
 
       if (type === 'pdf') {
