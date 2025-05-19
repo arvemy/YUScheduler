@@ -343,18 +343,35 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
   const handleDownload = async (type) => {
     if (!scheduleRef.current) return;
 
-    let originalWidth = null;
-    let originalOverflow = null;
+    // --- Begin robust fix: expand all containers and table ---
+    let originalScrollWidth = null, originalScrollOverflow = null;
+    let originalParentWidth = null, originalParentOverflow = null;
+    let originalTableWidth = null, originalTableMaxWidth = null;
+    let table = null;
     if (scrollRef.current) {
       const scrollBox = scrollRef.current;
-      const table = scrollBox.querySelector('table');
+      table = scrollBox.querySelector('table');
       if (table) {
-        originalWidth = scrollBox.style.width;
-        originalOverflow = scrollBox.style.overflowX;
-        scrollBox.style.width = table.scrollWidth + 'px';
+        // Save original styles
+        originalScrollWidth = scrollBox.style.width;
+        originalScrollOverflow = scrollBox.style.overflowX;
+        originalParentWidth = scheduleRef.current.style.width;
+        originalParentOverflow = scheduleRef.current.style.overflow;
+        originalTableWidth = table.style.width;
+        originalTableMaxWidth = table.style.maxWidth;
+        // Set to natural widths
+        const tableNaturalWidth = table.scrollWidth + 'px';
+        scrollBox.style.width = tableNaturalWidth;
         scrollBox.style.overflowX = 'visible';
+        scheduleRef.current.style.width = tableNaturalWidth;
+        scheduleRef.current.style.overflow = 'visible';
+        table.style.width = tableNaturalWidth;
+        table.style.maxWidth = 'none';
+        // Scroll to leftmost
+        scrollBox.scrollLeft = 0;
       }
     }
+    // --- End robust fix ---
 
     try {
       const canvas = await html2canvas(scheduleRef.current, {
@@ -385,9 +402,14 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
     } catch (error) {
       console.error('Error generating download:', error);
     } finally {
-      if (scrollRef.current && originalWidth !== null && originalOverflow !== null) {
-        scrollRef.current.style.width = originalWidth;
-        scrollRef.current.style.overflowX = originalOverflow;
+      // --- Restore all styles ---
+      if (scrollRef.current && table) {
+        scrollRef.current.style.width = originalScrollWidth ?? '';
+        scrollRef.current.style.overflowX = originalScrollOverflow ?? '';
+        scheduleRef.current.style.width = originalParentWidth ?? '';
+        scheduleRef.current.style.overflow = originalParentOverflow ?? '';
+        table.style.width = originalTableWidth ?? '';
+        table.style.maxWidth = originalTableMaxWidth ?? '';
       }
     }
     handleMenuClose();
