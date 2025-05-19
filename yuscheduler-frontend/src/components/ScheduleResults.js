@@ -55,7 +55,7 @@ function getCourseColor(course, courseColorMap, colorPalette) {
   return courseColorMap[course];
 }
 
-const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWeek, blockedHours, setBlockedHours }) {
+const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWeek, blockedHours, setBlockedHours, scrollRef }) {
   // Memoize grid and courseColorMap
   const { grid, courseColorMap } = useMemo(() => {
     const grid = {};
@@ -165,7 +165,7 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
           ))}
         </Stack>
       )}
-      <Box className="timetable-scroll" sx={{ width: '100%', overflowX: 'auto' }}>
+      <Box className="timetable-scroll" sx={{ width: '100%', overflowX: 'auto' }} ref={scrollRef}>
         <Table size="small" sx={{ mb: 2, tableLayout: 'fixed', width: '100%', minWidth: 900 }}>
         <TableHead>
           <TableRow>
@@ -324,6 +324,7 @@ function uniqueWarnings(warnings) {
 const ScheduleResults = React.memo(function ScheduleResults({ schedules, warnings, timeSlots, daysOfWeek, selectedCourses, hasGenerated, blockedHours, setBlockedHours }) {
   const [tab, setTab] = React.useState(0);
   const scheduleRef = React.useRef(null);
+  const scrollRef = React.useRef(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   // Reset tab to 0 when schedules change
@@ -341,6 +342,19 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
 
   const handleDownload = async (type) => {
     if (!scheduleRef.current) return;
+
+    let originalWidth = null;
+    let originalOverflow = null;
+    if (scrollRef.current) {
+      const scrollBox = scrollRef.current;
+      const table = scrollBox.querySelector('table');
+      if (table) {
+        originalWidth = scrollBox.style.width;
+        originalOverflow = scrollBox.style.overflowX;
+        scrollBox.style.width = table.scrollWidth + 'px';
+        scrollBox.style.overflowX = 'visible';
+      }
+    }
 
     try {
       const canvas = await html2canvas(scheduleRef.current, {
@@ -370,6 +384,11 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
       }
     } catch (error) {
       console.error('Error generating download:', error);
+    } finally {
+      if (scrollRef.current && originalWidth !== null && originalOverflow !== null) {
+        scrollRef.current.style.width = originalWidth;
+        scrollRef.current.style.overflowX = originalOverflow;
+      }
     }
     handleMenuClose();
   };
@@ -554,6 +573,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
             daysOfWeek={displayDaysOfWeek}
             blockedHours={blockedHours}
             setBlockedHours={setBlockedHours}
+            scrollRef={scrollRef}
           />
         )}
       </Box>
