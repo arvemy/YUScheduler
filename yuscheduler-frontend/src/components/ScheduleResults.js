@@ -166,7 +166,7 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
         </Stack>
       )}
       <Box className="timetable-scroll" sx={{ width: '100%', overflowX: 'auto' }}>
-        <Table size="small" sx={{ mb: 2, tableLayout: 'fixed', width: '100%', minWidth: { xs: 600, md: '100%' } }}>
+        <Table size="small" sx={{ mb: 2, tableLayout: 'fixed', width: '100%', minWidth: 900 }}>
         <TableHead>
           <TableRow>
             <TableCell sx={{ height: 72, borderRight: '2px solid #e0e0e0', width: 90, minWidth: 90, maxWidth: 90 }}>Time</TableCell>
@@ -229,11 +229,11 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
                       verticalAlign: 'middle',
                       p: 0,
                       cursor: 'pointer',
-                        backgroundColor: blocked ? '#ffebee' : undefined,
+                      backgroundColor: blocked ? '#ffebee' : undefined,
                       position: 'relative',
                       transition: 'background 0.3s, color 0.3s',
                       '&:hover': {
-                          backgroundColor: blocked ? '#ffcdd2' : '#f5f5f5',
+                        backgroundColor: blocked ? '#ffcdd2' : '#f5f5f5',
                         transition: 'background 0.2s',
                       },
                       ...(idx !== 0 ? { borderLeft: '2px solid #e0e0e0' } : {}),
