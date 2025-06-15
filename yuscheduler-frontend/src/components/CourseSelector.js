@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Button,
-  Typography,
+  Stack,
   Chip,
+  Typography,
   TextField,
   CircularProgress,
-  Stack,
   Paper,
   Menu,
   MenuItem,
@@ -17,11 +17,70 @@ import {
   Select,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import axios from "axios";
+import apiService from "../services/api";
+import { useError } from "../contexts/ErrorContext";
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000";
+// Style constants
+const chipStyle = {
+  borderRadius: 2,
+  boxShadow: 1,
+  fontWeight: 600,
+  letterSpacing: 0.5,
+  transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+  bgcolor: 'background.paper',
+};
 
-function CourseSelector({ onSchedule, blockedHours, term }) {
+const primaryChipStyle = {
+  ...chipStyle,
+  fontWeight: 500,
+  fontSize: 15,
+  letterSpacing: 0.3,
+};
+
+const groupChipStyle = {
+  ...chipStyle,
+  cursor: 'pointer',
+  width: '100%',
+  fontSize: 16,
+  '&:hover': {
+    bgcolor: 'primary.light',
+    color: 'primary.contrastText',
+    boxShadow: 4,
+    transform: 'translateY(-2px) scale(1.04)',
+  },
+  '&:active': {
+    boxShadow: 2,
+    transform: 'scale(0.98)',
+  },
+};
+
+const submitButtonStyle = {
+  borderRadius: 3,
+  fontWeight: 700,
+  fontSize: 18,
+  letterSpacing: 1,
+  boxShadow: 3,
+  py: 1.5,
+  transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+  bgcolor: 'primary.main',
+  '&:hover': {
+    bgcolor: 'primary.dark',
+    boxShadow: 6,
+    transform: 'translateY(-2px) scale(1.03)',
+  },
+  '&:active': {
+    boxShadow: 2,
+    transform: 'scale(0.98)',
+  },
+  '&.Mui-disabled': {
+    bgcolor: 'grey.300',
+    color: 'grey.600',
+    boxShadow: 0,
+    opacity: 0.7,
+  },
+};
+
+function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
   const [courses, setCourses] = useState({});
   const [selected, setSelected] = useState([]);
   const [sectionChoices, setSectionChoices] = useState({});
@@ -32,26 +91,43 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
   const [activeGroup, setActiveGroup] = useState(null);
   const [searchInput, setSearchInput] = useState("");
   const [error, setError] = useState(null);
+  const { showError } = useError();
 
   useEffect(() => {
+    if (!term) return;
+
+    // Reset state when term changes
     setLoading(true);
     setError(null);
-    axios
-      .get(`${API_BASE}/api/courses?term=${encodeURIComponent(term)}`)
-      .then((res) => {
-        setCourses(res.data);
+
+    // Load courses for the selected term
+    const loadCourses = async () => {
+      try {
+        const coursesData = await apiService.getCourses(term);
+        setCourses(coursesData);
         setLoading(false);
-      })
-      .catch(() => {
+      } catch (err) {
         setLoading(false);
         setError('Failed to load courses. Please try again later.');
-      });
-    // Fetch section data
-    axios
-      .get(`${API_BASE}/api/sections?term=${encodeURIComponent(term)}`)
-      .then((res) => setSectionData(res.data))
-      .catch(() => setSectionData({}));
-  }, [term]);
+        showError(`Failed to load courses: ${err.message || 'Unknown error'}`);
+      }
+    };
+
+    // Load sections for the selected term
+    const loadSections = async () => {
+      try {
+        const sectionsData = await apiService.getSections(term);
+        setSectionData(sectionsData);
+      } catch (err) {
+        showError(`Failed to load course sections: ${err.message || 'Unknown error'}`);
+        setSectionData({});
+      }
+    };
+
+    // Run both requests
+    loadCourses();
+    loadSections();
+  }, [term, showError]);
 
   // Helper to get all sections for a course
   const getSectionsForCourse = (course) => {
@@ -75,24 +151,34 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
     setSectionChoices((prev) => ({ ...prev, [course]: section === 'any' ? null : section }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!selected.length) {
+      showError("Please select at least one course");
+      return;
+    }
+
     setSubmitting(true);
+
     const courseSectionArray = selected.map((course) => ({
       course,
       section: sectionChoices[course] || null,
     }));
-    axios
-      .post(`${API_BASE}/api/generate_schedule`, {
+
+    try {
+      const data = await apiService.generateSchedule({
         courses: courseSectionArray,
         blocked_hours: blockedHours,
         term: term,
-      })
-      .then((res) => {
-        onSchedule(res.data, selected);
-        setSubmitting(false);
-      })
-      .catch(() => setSubmitting(false));
+      });
+
+      onSchedule(data, selected);
+    } catch (err) {
+      showError(`Failed to generate schedule: ${err.message || 'Unknown error'}`);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const toggleCourse = (course) => {
@@ -148,10 +234,10 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
               inputValue.trim() === ''
                 ? []
                 : options
-                    .filter(option =>
-                      option.toLowerCase().startsWith(inputValue.trim().toLowerCase())
-                    )
-                    .slice(0, 5)
+                  .filter(option =>
+                    option.toLowerCase().startsWith(inputValue.trim().toLowerCase())
+                  )
+                  .slice(0, 5)
             }
             renderInput={(params) => (
               <TextField
@@ -186,14 +272,14 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
                   const sections = getSectionsForCourse(course);
                   return (
                     <Box key={course} sx={{ display: 'flex', alignItems: 'center', mb: 1, mr: 1 }}>
-                  <Chip
-                    label={course}
-                    onDelete={() => toggleCourse(course)}
-                    color="primary"
-                    variant="outlined"
-                    sx={{ mb: 0, mr: sections.length > 1 ? 0.5 : 0, borderRadius: 2, fontWeight: 500, fontSize: 15, letterSpacing: 0.3, boxShadow: 1, bgcolor: 'background.paper', transition: 'all 0.25s cubic-bezier(.4,0,.2,1)' }}
-                    aria-label={`Remove course ${course}`}
-                  />
+                      <Chip
+                        label={course}
+                        onDelete={() => toggleCourse(course)}
+                        color="primary"
+                        variant="outlined"
+                        sx={{ ...primaryChipStyle, mb: 0, mr: sections.length > 1 ? 0.5 : 0 }}
+                        aria-label={`Remove course ${course}`}
+                      />
                       {sections.length > 1 && (
                         <Select
                           size="small"
@@ -246,30 +332,7 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
                     onClick={(e) => handleGroupClick(e, prefix)}
                     color="primary"
                     variant="outlined"
-                    sx={{
-                      cursor: 'pointer',
-                      width: '100%',
-                      borderRadius: 2,
-                      boxShadow: 1,
-                      fontWeight: 600,
-                      fontSize: 16,
-                      letterSpacing: 0.5,
-                      transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
-                      bgcolor: 'background.paper',
-                      '&:hover': {
-                        bgcolor: 'primary.light',
-                        color: 'primary.contrastText',
-                        boxShadow: 4,
-                        transform: 'translateY(-2px) scale(1.04)',
-                      },
-                      '&:active': {
-                        boxShadow: 2,
-                        transform: 'scale(0.98)',
-                      },
-                      '& .MuiChip-label': {
-                        transition: 'color 0.25s',
-                      },
-                    }}
+                    sx={groupChipStyle}
                     aria-label={`Show courses in group ${prefix}`}
                   />
                 </Grid>
@@ -311,32 +374,7 @@ function CourseSelector({ onSchedule, blockedHours, term }) {
             disabled={submitting || selected.length === 0}
             size="large"
             fullWidth
-            sx={{
-              mt: 2,
-              borderRadius: 3,
-              fontWeight: 700,
-              fontSize: 18,
-              letterSpacing: 1,
-              boxShadow: 3,
-              py: 1.5,
-              transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
-              bgcolor: 'primary.main',
-              '&:hover': {
-                bgcolor: 'primary.dark',
-                boxShadow: 6,
-                transform: 'translateY(-2px) scale(1.03)',
-              },
-              '&:active': {
-                boxShadow: 2,
-                transform: 'scale(0.98)',
-              },
-              '&.Mui-disabled': {
-                bgcolor: 'grey.300',
-                color: 'grey.600',
-                boxShadow: 0,
-                opacity: 0.7,
-              },
-            }}
+            sx={{ ...submitButtonStyle, mt: 2 }}
             aria-label={submitting ? "Generating schedule" : "Generate schedule"}
           >
             {submitting ? "Generating Schedule..." : "Generate Schedule"}

@@ -1,45 +1,129 @@
+# ===========================
 # Python
-venv/
+# ===========================
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-.env
-.env.*
-.DS_Store
-
-# Flask
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
 instance/
+.webassets-cache
 *.db
 *.sqlite3
 
-# React/Node
+# ===========================
+# Node.js / React
+# ===========================
 node_modules/
-yuscheduler-frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.npm
+.eslintcache
+.node_repl_history
+*.tsbuildinfo
 yuscheduler-frontend/build/
-yuscheduler-frontend/.env*
+yuscheduler-frontend/node_modules/
+yuscheduler-frontend/.env.local
+yuscheduler-frontend/.env.development.local
+yuscheduler-frontend/.env.test.local
+yuscheduler-frontend/.env.production.local
 
+# ===========================
+# Environment Variables
+# ===========================
+.env
+.env.*
+!.env.example
+
+# ===========================
+# IDE / Editor
+# ===========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# ===========================
+# OS Files
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ===========================
+# Testing
+# ===========================
+coverage/
+.nyc_output/
+*.lcov
+
+# ===========================
+# Build / Distribution
+# ===========================
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+share/python-wheels/
+*.manifest
+*.spec
+
+# ===========================
 # Logs
+# ===========================
+logs/
+*.log
+logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# OS
-.DS_Store
-Thumbs.db
+# ===========================
+# Temporary Files
+# ===========================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+~$*
 
-# Misc
-*.swp
-*.swo
-.idea/
-.vscode/
-
-# Coverage
-coverage/
-*.cover
-*.coverage
-
-# Production
-/build
-/dist 
+# ===========================
+# Security
+# ===========================
+*.pem
+*.key
+*.cert
+*.crt
+.secrets/ 

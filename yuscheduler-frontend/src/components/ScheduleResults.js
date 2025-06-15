@@ -47,6 +47,7 @@ const COURSE_COLORS = [
   "#95A5A6", // Gray
 ];
 
+// Helper functions
 function getCourseColor(course, courseColorMap, colorPalette) {
   if (!courseColorMap[course]) {
     const color = colorPalette[Object.keys(courseColorMap).length % colorPalette.length];
@@ -54,6 +55,45 @@ function getCourseColor(course, courseColorMap, colorPalette) {
   }
   return courseColorMap[course];
 }
+
+function uniqueWarnings(warnings) {
+  const seen = new Set();
+  return warnings.filter((w) => {
+    const normalized = w.trim().toLowerCase();
+    if (normalized === 'no valid courses remain to generate a schedule.') return false;
+    if (seen.has(normalized)) return false;
+    seen.add(normalized);
+    return true;
+  });
+}
+
+// Style constants
+const chipStyle = {
+  borderRadius: 2,
+  fontWeight: 500,
+  fontSize: 15,
+  letterSpacing: 0.3,
+  boxShadow: 1,
+  bgcolor: 'background.paper',
+  transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+};
+
+const buttonStyle = {
+  borderRadius: 3,
+  fontWeight: 700,
+  boxShadow: 3,
+  transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+  bgcolor: 'primary.main',
+  '&:hover': {
+    bgcolor: 'primary.dark',
+    boxShadow: 6,
+    transform: 'translateY(-2px) scale(1.03)',
+  },
+  '&:active': {
+    boxShadow: 2,
+    transform: 'scale(0.98)',
+  },
+};
 
 const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWeek, blockedHours, setBlockedHours, scrollRef }) {
   // Memoize grid and courseColorMap
@@ -167,34 +207,34 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
       )}
       <Box className="timetable-scroll" sx={{ width: '100%', overflowX: 'auto' }} ref={scrollRef}>
         <Table size="small" sx={{ mb: 2, tableLayout: 'fixed', width: '100%', minWidth: 900 }}>
-        <TableHead>
-          <TableRow>
-            <TableCell sx={{ height: 72, borderRight: '2px solid #e0e0e0', width: 90, minWidth: 90, maxWidth: 90 }}>Time</TableCell>
-            {daysOfWeek.map((day, idx) => (
-              <TableCell
-                key={day}
-                sx={{
-                  width: 120,
-                  minWidth: 120,
-                  maxWidth: 120,
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                  backgroundColor: isDayBlocked(day) ? '#616161' : undefined,
-                  color: isDayBlocked(day) ? '#fff' : undefined,
-                  fontWeight: isDayBlocked(day) ? 700 : 400,
-                  textAlign: 'center',
-                  ...(idx !== 0 ? { borderLeft: '2px solid #e0e0e0', height: 72 } : { height: 72 }),
-                }}
-                onClick={() => handleDayHeaderClick(day)}
-              >
-                {day}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {timeSlots.map((slot) => (
-            <TableRow key={slot}>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ height: 72, borderRight: '2px solid #e0e0e0', width: 90, minWidth: 90, maxWidth: 90 }}>Time</TableCell>
+              {daysOfWeek.map((day, idx) => (
+                <TableCell
+                  key={day}
+                  sx={{
+                    width: 120,
+                    minWidth: 120,
+                    maxWidth: 120,
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    backgroundColor: isDayBlocked(day) ? '#616161' : undefined,
+                    color: isDayBlocked(day) ? '#fff' : undefined,
+                    fontWeight: isDayBlocked(day) ? 700 : 400,
+                    textAlign: 'center',
+                    ...(idx !== 0 ? { borderLeft: '2px solid #e0e0e0', height: 72 } : { height: 72 }),
+                  }}
+                  onClick={() => handleDayHeaderClick(day)}
+                >
+                  {day}
+                </TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {timeSlots.map((slot) => (
+              <TableRow key={slot}>
                 <TableCell
                   sx={{
                     height: 72,
@@ -216,50 +256,50 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
                 >
                   {slot}
                 </TableCell>
-              {daysOfWeek.map((day, idx) => {
-                const blocked = isBlocked(day, slot);
-                return (
-                  <TableCell
-                    key={day}
-                    sx={{
-                      width: 120,
-                      minWidth: 120,
-                      maxWidth: 120,
-                      height: 72,
-                      verticalAlign: 'middle',
-                      p: 0,
-                      cursor: 'pointer',
-                      backgroundColor: blocked ? '#ffebee' : undefined,
-                      position: 'relative',
-                      transition: 'background 0.3s, color 0.3s',
-                      '&:hover': {
-                        backgroundColor: blocked ? '#ffcdd2' : '#f5f5f5',
-                        transition: 'background 0.2s',
-                      },
-                      ...(idx !== 0 ? { borderLeft: '2px solid #e0e0e0' } : {}),
-                    }}
-                    onClick={() => handleCellClick(day, slot)}
-                    aria-label={`Block/unblock ${day} at ${slot}`}
-                  >
-                    <Box sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      height: 72,
-                      overflow: 'hidden',
-                      opacity: blocked ? 0.4 : 1,
-                      position: 'relative',
-                      transition: 'opacity 0.3s',
-                    }}>
-                      <Fade in={blocked} timeout={300} unmountOnExit>
-                        <Box sx={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          zIndex: 2,
-                          pointerEvents: 'none',
+                {daysOfWeek.map((day, idx) => {
+                  const blocked = isBlocked(day, slot);
+                  return (
+                    <TableCell
+                      key={day}
+                      sx={{
+                        width: 120,
+                        minWidth: 120,
+                        maxWidth: 120,
+                        height: 72,
+                        verticalAlign: 'middle',
+                        p: 0,
+                        cursor: 'pointer',
+                        backgroundColor: blocked ? '#ffebee' : undefined,
+                        position: 'relative',
+                        transition: 'background 0.3s, color 0.3s',
+                        '&:hover': {
+                          backgroundColor: blocked ? '#ffcdd2' : '#f5f5f5',
+                          transition: 'background 0.2s',
+                        },
+                        ...(idx !== 0 ? { borderLeft: '2px solid #e0e0e0' } : {}),
+                      }}
+                      onClick={() => handleCellClick(day, slot)}
+                      aria-label={`Block/unblock ${day} at ${slot}`}
+                    >
+                      <Box sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: 72,
+                        overflow: 'hidden',
+                        opacity: blocked ? 0.4 : 1,
+                        position: 'relative',
+                        transition: 'opacity 0.3s',
+                      }}>
+                        <Fade in={blocked} timeout={300} unmountOnExit>
+                          <Box sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            zIndex: 2,
+                            pointerEvents: 'none',
                             bgcolor: 'rgba(244,67,54,0.12)', // subtle red tint
                             borderRadius: 1,
                             width: 40,
@@ -267,59 +307,48 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                        }}>
+                          }}>
                             <LockIcon sx={{ color: '#b71c1c', fontSize: 28, opacity: 1 }} />
-                        </Box>
-                      </Fade>
-                      {grid[day][slot].map((s, idx2) => (
-                        <Box
-                          key={idx2}
-                          sx={{
-                            mb: 0.5,
-                            px: 1,
-                            py: 0.5,
-                            bgcolor: getCourseColor(s.course, courseColorMap, COURSE_COLORS),
-                            borderRadius: 1,
-                            color: "#222",
-                            boxShadow: 1,
-                            width: '90%',
-                            minWidth: 0,
-                            overflow: 'hidden',
-                            mx: 'auto',
-                          }}
-                        >
-                          <Typography variant="body2" fontWeight="bold" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 13 }}>
-                            {s.course} ({s.section})
-                          </Typography>
-                          <Typography variant="body2" sx={{ fontSize: 12 }}>
-                            {s["Start Time"]} - {s["End Time"]}
-                          </Typography>
-                          <Typography variant="caption" sx={{ fontSize: 11 }}>{s["Classroom"]}</Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                          </Box>
+                        </Fade>
+                        {grid[day][slot].map((s, idx2) => (
+                          <Box
+                            key={idx2}
+                            sx={{
+                              mb: 0.5,
+                              px: 1,
+                              py: 0.5,
+                              bgcolor: getCourseColor(s.course, courseColorMap, COURSE_COLORS),
+                              borderRadius: 1,
+                              color: "#222",
+                              boxShadow: 1,
+                              width: '90%',
+                              minWidth: 0,
+                              overflow: 'hidden',
+                              mx: 'auto',
+                            }}
+                          >
+                            <Typography variant="body2" fontWeight="bold" sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 13 }}>
+                              {s.course} ({s.section})
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontSize: 12 }}>
+                              {s["Start Time"]} - {s["End Time"]}
+                            </Typography>
+                            <Typography variant="caption" sx={{ fontSize: 11 }}>{s["Classroom"]}</Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </Box>
     </>
   );
 });
-
-function uniqueWarnings(warnings) {
-  const seen = new Set();
-  return warnings.filter((w) => {
-    const normalized = w.trim().toLowerCase();
-    if (normalized === 'no valid courses remain to generate a schedule.') return false;
-    if (seen.has(normalized)) return false;
-    seen.add(normalized);
-    return true;
-  });
-}
 
 const ScheduleResults = React.memo(function ScheduleResults({ schedules, warnings, timeSlots, daysOfWeek, selectedCourses, hasGenerated, blockedHours, setBlockedHours }) {
   const [tab, setTab] = React.useState(0);
@@ -390,7 +419,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
 
         const imgWidth = 297; // A4 width in mm
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
+
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
         pdf.save(`schedule-${tab + 1}.pdf`);
       } else if (type === 'image') {
@@ -453,13 +482,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
                   color="primary"
                   variant="outlined"
                   sx={{
-                    borderRadius: 2,
-                    fontWeight: 500,
-                    fontSize: 15,
-                    letterSpacing: 0.3,
-                    boxShadow: 1,
-                    bgcolor: 'background.paper',
-                    transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+                    ...chipStyle,
                     textDecoration: isValid ? 'none' : 'line-through',
                     color: isValid ? undefined : 'grey.500',
                     opacity: isValid ? 1 : 0.7,
@@ -492,30 +515,11 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
               startIcon={<DownloadIcon />}
               onClick={handleMenuClick}
               sx={{
+                ...buttonStyle,
                 ml: 2,
-                borderRadius: 3,
-                fontWeight: 700,
                 fontSize: 16,
                 letterSpacing: 0.5,
-                boxShadow: 3,
                 py: 1.2,
-                transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
-                bgcolor: 'primary.main',
-                '&:hover': {
-                  bgcolor: 'primary.dark',
-                  boxShadow: 6,
-                  transform: 'translateY(-2px) scale(1.03)',
-                },
-                '&:active': {
-                  boxShadow: 2,
-                  transform: 'scale(0.98)',
-                },
-                '&.Mui-disabled': {
-                  bgcolor: 'grey.300',
-                  color: 'grey.600',
-                  boxShadow: 0,
-                  opacity: 0.7,
-                },
               }}
               aria-label="Download schedule options"
             >

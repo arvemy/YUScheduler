@@ -1,18 +1,117 @@
-# Ensure consistent line endings
+# ===========================
+# Auto detect text files and perform LF normalization
+# ===========================
 * text=auto
 
-# Treat shell scripts as text and always use LF
+# ===========================
+# Source Code
+# ===========================
+*.py text diff=python
+*.js text diff=javascript
+*.jsx text diff=javascript
+*.ts text diff=typescript
+*.tsx text diff=typescript
+*.json text
+*.html text diff=html
+*.css text diff=css
+*.scss text diff=css
+*.sass text diff=css
+*.less text diff=css
+*.xml text
+
+# ===========================
+# Documentation
+# ===========================
+*.md text diff=markdown
+*.txt text
+README* text
+LICENSE text
+AUTHORS text
+CHANGELOG text
+HISTORY text
+NOTICE text
+
+# ===========================
+# Configuration
+# ===========================
+*.yml text
+*.yaml text
+*.toml text
+*.ini text
+*.cfg text
+*.conf text
+.gitignore text
+.gitattributes text
+.editorconfig text
+.env.example text
+
+# ===========================
+# Shell Scripts
+# ===========================
 *.sh text eol=lf
+*.bash text eol=lf
+*.zsh text eol=lf
 
-# Mark Python files
+# ===========================
+# Windows Scripts
+# ===========================
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# ===========================
+# Binary Files
+# ===========================
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.7z binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+
+# ===========================
+# Language Statistics
+# ===========================
+# Mark vendored files
+yuscheduler-frontend/build/* linguist-vendored
+node_modules/* linguist-vendored
+venv/* linguist-vendored
+
+# Mark generated files
+*.min.js linguist-generated
+*.min.css linguist-generated
+
+# Mark documentation
+docs/* linguist-documentation
+*.md linguist-documentation
+
+# Set language for specific files
 *.py linguist-language=Python
-
-# Mark JavaScript files
 *.js linguist-language=JavaScript
 *.jsx linguist-language=JavaScript
-
-# Mark JSON files
 *.json linguist-language=JSON
+requirements.txt linguist-language=Text
+package.json linguist-language=JSON
+package-lock.json linguist-language=JSON
 
-# Mark Markdown files
-*.md linguist-language=Markdown 
+# ===========================
+# Export Ignore (for git archive)
+# ===========================
+.github export-ignore
+.gitignore export-ignore
+.gitattributes export-ignore
+.editorconfig export-ignore
+tests/ export-ignore
+docs/ export-ignore
+*.test.js export-ignore
+*.spec.js export-ignore 
