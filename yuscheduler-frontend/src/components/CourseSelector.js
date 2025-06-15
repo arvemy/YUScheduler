@@ -105,7 +105,7 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
   ], []);
 
   const defaultDaysOfWeek = useMemo(() => [
-    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
   ], []);
 
   useEffect(() => {
