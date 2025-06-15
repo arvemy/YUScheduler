@@ -197,6 +197,33 @@ function AppContent() {
                     py: 1,
                     borderRadius: 2,
                     letterSpacing: 1,
+                    boxShadow: '0 2px 8px rgba(25, 118, 210, 0.12)',
+                    border: '2px solid rgba(25, 118, 210, 0.2)',
+                    '&:hover': {
+                      border: '2px solid rgba(25, 118, 210, 0.5)',
+                    },
+                    '&.Mui-focused': {
+                      border: '2px solid #1976d2',
+                      boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+                    },
+                    '& .MuiSelect-select': {
+                      fontWeight: 800,
+                      color: '#1976d2',
+                      textAlign: 'center',
+                    }
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        borderRadius: 2,
+                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                        '& .MuiMenuItem-root': {
+                          fontWeight: 600,
+                          fontSize: 15,
+                          my: 0.5,
+                        }
+                      }
+                    }
                   }}
                 >
                   {terms.map((term) => (
