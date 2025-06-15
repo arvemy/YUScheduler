@@ -474,7 +474,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
           <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", mb: 1 }}>
             {selectedCourses.map((course) => {
               // Check if course is present in any schedule.sections
-              const isValid = schedules.length > 0 && schedules[tab]?.sections?.some(s => s.course === course);
+              const isValid = schedules && schedules.length > 0 && tab !== undefined && schedules[tab]?.sections?.some(s => s.course === course);
               return (
                 <Chip
                   key={course}
