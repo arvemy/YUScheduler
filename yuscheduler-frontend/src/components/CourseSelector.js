@@ -276,24 +276,6 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
             }}
           />
 
-          {/* Time Blocking Section */}
-          <Box>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-              Block Hours (Click on cells to block/unblock time)
-            </Typography>
-            <Box sx={{ mt: 2 }}>
-              <Timetable
-                timeSlots={defaultTimeSlots}
-                daysOfWeek={defaultDaysOfWeek}
-                blockedHours={blockedHours}
-                setBlockedHours={setBlockedHours}
-                schedule={{ sections: [] }} // Empty schedule for blocking only
-              />
-            </Box>
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
           {/* Selected Courses */}
           {selected.length > 0 && (
             <Box>
@@ -398,6 +380,20 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
               </MenuItem>
             ))}
           </Menu>
+
+          {/* Time Blocking Section - Moved here */}
+          <Box>
+            <Divider sx={{ my: 2 }} />
+            <Box sx={{ mt: 2 }}>
+              <Timetable
+                timeSlots={defaultTimeSlots}
+                daysOfWeek={defaultDaysOfWeek}
+                blockedHours={blockedHours}
+                setBlockedHours={setBlockedHours}
+                schedule={{ sections: [] }} // Empty schedule for blocking only
+              />
+            </Box>
+          </Box>
 
           {/* Generate Button */}
           <Button
