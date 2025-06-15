@@ -25,6 +25,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ImageIcon from '@mui/icons-material/Image';
 import LockIcon from '@mui/icons-material/Lock';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
@@ -358,7 +359,8 @@ const ScheduleResults = React.memo(function ScheduleResults({
   selectedCourses = [],
   hasGenerated = false,
   blockedHours = [],
-  setBlockedHours
+  setBlockedHours,
+  onBack
 }) {
   const [tab, setTab] = React.useState(0);
   const scheduleRef = React.useRef(null);
@@ -470,6 +472,15 @@ const ScheduleResults = React.memo(function ScheduleResults({
       background: 'linear-gradient(135deg, #f5f6fa 0%, #e3e9f7 100%)',
       transition: 'box-shadow 0.3s cubic-bezier(.4,0,.2,1), background 0.3s cubic-bezier(.4,0,.2,1)',
     }}>
+      {onBack && (
+        <Button
+          onClick={onBack}
+          startIcon={<ArrowBackIcon />}
+          sx={{ mb: 2, fontWeight: 600 }}
+        >
+          Back to Course Selection
+        </Button>
+      )}
       {uniqueWarnings(warnings).map((w, i) => (
         <Alert severity="warning" key={i} sx={{ mb: 2, borderRadius: 2, boxShadow: 2, fontSize: 16 }} aria-live="polite">
           {w}

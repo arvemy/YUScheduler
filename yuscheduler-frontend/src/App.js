@@ -223,10 +223,15 @@ function AppContent() {
                   />
                 ) : (
                   <ScheduleResults
-                    scheduleData={scheduleData}
+                    schedules={scheduleData.schedules}
+                    warnings={scheduleData.warnings || []}
+                    timeSlots={scheduleData.time_slots || []}
+                    daysOfWeek={scheduleData.days_of_week || []}
                     selectedCourses={selectedCourses}
-                    onBack={() => setHasGenerated(false)}
+                    hasGenerated={hasGenerated}
                     blockedHours={blockedHours}
+                    setBlockedHours={setBlockedHours}
+                    onBack={() => setHasGenerated(false)}
                   />
                 )}
               </Suspense>
