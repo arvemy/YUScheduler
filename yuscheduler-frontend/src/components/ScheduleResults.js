@@ -459,8 +459,8 @@ const ScheduleResults = React.memo(function ScheduleResults({
   // Always show the table, even if no schedules yet
   const showTable = timeSlots.length > 0 && daysOfWeek.length > 0;
 
-  // Remove Sunday from daysOfWeek for display
-  const displayDaysOfWeek = daysOfWeek.filter(day => day !== 'Sunday');
+  // Display all days, including Sunday
+  const displayDaysOfWeek = daysOfWeek;
 
   if (!showTable && !warnings.length) return null;
 
