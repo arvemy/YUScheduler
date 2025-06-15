@@ -521,7 +521,20 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
           {showScheduleResults && schedules.length > 0 && (
             <Box sx={{ mt: 2 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h6" sx={{ fontSize: { xs: 16, sm: 20, md: 24 } }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: { xs: 18, sm: 22, md: 26 },
+                    fontWeight: 800,
+                    color: 'primary.main',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                    background: 'linear-gradient(90deg, #1976d2 0%, #64b5f6 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    letterSpacing: 0.8,
+                    fontFamily: 'Montserrat, Roboto, Arial',
+                  }}
+                >
                   {schedules.length} Valid Schedule{(schedules.length > 1 ? "s" : "")} Found
                 </Typography>
                 <Box>
