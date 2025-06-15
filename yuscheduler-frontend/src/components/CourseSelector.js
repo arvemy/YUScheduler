@@ -15,14 +15,24 @@ import {
   Grid,
   Autocomplete,
   Select,
-  Divider
+  Divider,
+  Alert,
+  Tabs,
+  Tab,
+  ListItemIcon
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import DownloadIcon from '@mui/icons-material/Download';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ImageIcon from '@mui/icons-material/Image';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import apiService from "../services/api";
 import { useError } from "../contexts/ErrorContext";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 // Import the Timetable component from ScheduleResults
-import { Timetable } from './ScheduleResults';
+import { Timetable, uniqueWarnings } from './ScheduleResults';
 
 // Style constants
 const chipStyle = {
@@ -84,7 +94,7 @@ const submitButtonStyle = {
   },
 };
 
-function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
+function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, scheduleData, selectedCourses, hasGenerated, resetSchedule }) {
   const [courses, setCourses] = useState({});
   const [selected, setSelected] = useState([]);
   const [sectionChoices, setSectionChoices] = useState({});
@@ -96,6 +106,24 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
   const [searchInput, setSearchInput] = useState("");
   const [error, setError] = useState(null);
   const { showError } = useError();
+
+  // Schedule display state
+  const [tab, setTab] = useState(0);
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const scheduleRef = React.useRef(null);
+  const scrollRef = React.useRef(null);
+
+  // Reset tab when scheduleData changes
+  useEffect(() => {
+    setTab(0);
+  }, [scheduleData]);
+
+  // Set selected courses when passed as prop
+  useEffect(() => {
+    if (selectedCourses && selectedCourses.length > 0) {
+      setSelected(selectedCourses);
+    }
+  }, [selectedCourses]);
 
   // Default time slots and days
   const defaultTimeSlots = useMemo(() => [
@@ -215,6 +243,91 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
     setActiveGroup(null);
   };
 
+  // Menu for download options
+  const handleMenuClick = (event) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuDownloadClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  // Download schedule functionality
+  const handleDownload = async (type) => {
+    if (!scheduleRef.current) return;
+
+    // --- Begin robust fix: expand all containers and table ---
+    let originalScrollWidth = null, originalScrollOverflow = null;
+    let originalParentWidth = null, originalParentOverflow = null;
+    let originalTableWidth = null, originalTableMaxWidth = null;
+    let table = null;
+    if (scrollRef.current) {
+      const scrollBox = scrollRef.current;
+      table = scrollBox.querySelector('table');
+      if (table) {
+        // Save original styles
+        originalScrollWidth = scrollBox.style.width;
+        originalScrollOverflow = scrollBox.style.overflowX;
+        originalParentWidth = scheduleRef.current.style.width;
+        originalParentOverflow = scheduleRef.current.style.overflow;
+        originalTableWidth = table.style.width;
+        originalTableMaxWidth = table.style.maxWidth;
+        // Set to natural widths
+        const tableNaturalWidth = table.scrollWidth + 'px';
+        scrollBox.style.width = tableNaturalWidth;
+        scrollBox.style.overflowX = 'visible';
+        scheduleRef.current.style.width = tableNaturalWidth;
+        scheduleRef.current.style.overflow = 'visible';
+        table.style.width = tableNaturalWidth;
+        table.style.maxWidth = 'none';
+        // Scroll to leftmost
+        scrollBox.scrollLeft = 0;
+      }
+    }
+    // --- End robust fix ---
+
+    try {
+      const canvas = await html2canvas(scheduleRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      if (type === 'pdf') {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a4',
+        });
+
+        const imgWidth = 297; // A4 width in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.save(`schedule-${tab + 1}.pdf`);
+      } else if (type === 'image') {
+        const link = document.createElement('a');
+        link.download = `schedule-${tab + 1}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }
+    } catch (error) {
+      console.error('Error generating download:', error);
+    } finally {
+      // --- Restore all styles ---
+      if (scrollRef.current && table) {
+        scrollRef.current.style.width = originalScrollWidth ?? '';
+        scrollRef.current.style.overflowX = originalScrollOverflow ?? '';
+        scheduleRef.current.style.width = originalParentWidth ?? '';
+        scheduleRef.current.style.overflow = originalParentOverflow ?? '';
+        table.style.width = originalTableWidth ?? '';
+        table.style.maxWidth = originalTableMaxWidth ?? '';
+      }
+    }
+    handleMenuDownloadClose();
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 200 }}>
@@ -231,6 +344,17 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
       </Box>
     );
   }
+
+  // Extract data from scheduleData
+  const schedules = scheduleData?.schedules || [];
+  const warnings = scheduleData?.warnings || [];
+  const timeSlots = scheduleData?.time_slots || defaultTimeSlots;
+  const daysOfWeek = scheduleData?.days_of_week || defaultDaysOfWeek;
+
+  // Determine whether to show results or just the time blocking table
+  const showScheduleResults = hasGenerated && scheduleData;
+  const displayDaysOfWeek = daysOfWeek;
+  const showTable = timeSlots.length > 0 && daysOfWeek.length > 0;
 
   return (
     <Paper elevation={3} sx={{ p: { xs: 1.5, sm: 3 }, borderRadius: 4, boxShadow: 6, background: 'linear-gradient(135deg, #f5f6fa 0%, #e3e9f7 100%)', mb: { xs: 2, md: 4 } }}>
@@ -382,33 +506,160 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
             ))}
           </Menu>
 
-          {/* Time Blocking Section - Moved here */}
-          <Box>
-            <Divider sx={{ my: 2 }} />
+          {/* Warning Display */}
+          {warnings.length > 0 && (
             <Box sx={{ mt: 2 }}>
-              <Timetable
-                timeSlots={defaultTimeSlots}
-                daysOfWeek={defaultDaysOfWeek}
-                blockedHours={blockedHours}
-                setBlockedHours={setBlockedHours}
-                schedule={{ sections: [] }} // Empty schedule for blocking only
-              />
+              {uniqueWarnings(warnings).map((w, i) => (
+                <Alert severity="warning" key={i} sx={{ mb: 2, borderRadius: 2, boxShadow: 2, fontSize: 16 }} aria-live="polite">
+                  {w}
+                </Alert>
+              ))}
             </Box>
+          )}
+
+          {/* Generated Schedules Display */}
+          {showScheduleResults && schedules.length > 0 && (
+            <Box sx={{ mt: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6" sx={{ fontSize: { xs: 16, sm: 20, md: 24 } }}>
+                  {schedules.length} Valid Schedule{(schedules.length > 1 ? "s" : "")} Found
+                </Typography>
+                <Box>
+                  <Button
+                    variant="outlined"
+                    startIcon={<RefreshIcon />}
+                    onClick={resetSchedule}
+                    sx={{ mr: 1 }}
+                  >
+                    New Schedule
+                  </Button>
+                  <Button
+                    variant="contained"
+                    startIcon={<DownloadIcon />}
+                    onClick={handleMenuClick}
+                    sx={{
+                      ...submitButtonStyle,
+                      fontSize: 16,
+                      letterSpacing: 0.5,
+                      py: 1.2,
+                    }}
+                    aria-label="Download schedule options"
+                  >
+                    Download
+                  </Button>
+                </Box>
+              </Box>
+
+              {/* Schedule Tabs */}
+              <Tabs
+                value={tab}
+                onChange={(_, v) => setTab(v)}
+                variant="scrollable"
+                scrollButtons="auto"
+                sx={{
+                  mb: 2,
+                  borderRadius: 3,
+                  boxShadow: 2,
+                  background: 'rgba(255,255,255,0.7)',
+                  minHeight: 48,
+                  '& .MuiTabs-indicator': {
+                    height: 2,
+                    borderRadius: 1,
+                    bgcolor: 'primary.main',
+                    transition: 'all 0.3s cubic-bezier(.4,0,.2,1)',
+                  },
+                }}
+              >
+                {schedules.map((_, idx) => (
+                  <Tab
+                    label={`Schedule ${idx + 1}`}
+                    key={idx}
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: 15,
+                      borderRadius: 1,
+                      mx: 0.5,
+                      minHeight: 40,
+                      px: 2,
+                      py: 0.5,
+                      transition: 'all 0.2s cubic-bezier(.4,0,.2,1)',
+                      '&.Mui-selected': {
+                        color: 'primary.main',
+                        bgcolor: 'transparent',
+                        boxShadow: 'none',
+                      },
+                      '&:hover': {
+                        bgcolor: 'primary.lighter',
+                        color: 'primary.dark',
+                      },
+                    }}
+                  />
+                ))}
+              </Tabs>
+
+              {/* Download Menu */}
+              <Menu
+                anchorEl={menuAnchorEl}
+                open={Boolean(menuAnchorEl)}
+                onClose={handleMenuDownloadClose}
+              >
+                <MenuItem onClick={() => handleDownload('pdf')}>
+                  <ListItemIcon>
+                    <PictureAsPdfIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Download as PDF</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={() => handleDownload('image')}>
+                  <ListItemIcon>
+                    <ImageIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Download as Image</ListItemText>
+                </MenuItem>
+              </Menu>
+            </Box>
+          )}
+
+          {/* Generated Schedule Display */}
+          <Box ref={scheduleRef}>
+            {showTable && (
+              <Box>
+                {showScheduleResults ? (
+                  <Divider sx={{ my: 2 }} />
+                ) : (
+                  <Divider sx={{ my: 2 }} />
+                )}
+                <Timetable
+                  schedule={showScheduleResults && schedules.length > 0 ? schedules[tab] : { sections: [] }}
+                  timeSlots={timeSlots}
+                  daysOfWeek={displayDaysOfWeek}
+                  blockedHours={blockedHours}
+                  setBlockedHours={setBlockedHours}
+                  scrollRef={scrollRef}
+                />
+              </Box>
+            )}
           </Box>
 
-          {/* Generate Button */}
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            disabled={submitting || selected.length === 0}
-            size="large"
-            fullWidth
-            sx={{ ...submitButtonStyle, mt: 2 }}
-            aria-label={submitting ? "Generating schedule" : "Generate schedule"}
-          >
-            {submitting ? "Generating Schedule..." : "Generate Schedule"}
-          </Button>
+          {/* No Schedules Found Message */}
+          {hasGenerated && schedules.length === 0 && warnings.length === 0 && (
+            <Alert severity="info" sx={{ borderRadius: 2, boxShadow: 1, fontSize: 16 }}>No valid schedules found.</Alert>
+          )}
+
+          {/* Generate Button - Only show if not already generated or if no schedules were found */}
+          {(!hasGenerated || (hasGenerated && schedules.length === 0)) && (
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={submitting || selected.length === 0}
+              size="large"
+              fullWidth
+              sx={{ ...submitButtonStyle, mt: 2 }}
+              aria-label={submitting ? "Generating schedule" : "Generate schedule"}
+            >
+              {submitting ? "Generating Schedule..." : "Generate Schedule"}
+            </Button>
+          )}
         </Stack>
       </Box>
     </Paper>

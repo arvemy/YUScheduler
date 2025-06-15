@@ -57,15 +57,9 @@ function getCourseColor(course, courseColorMap, colorPalette) {
   return courseColorMap[course];
 }
 
-function uniqueWarnings(warnings) {
-  const seen = new Set();
-  return warnings.filter((w) => {
-    const normalized = w.trim().toLowerCase();
-    if (normalized === 'no valid courses remain to generate a schedule.') return false;
-    if (seen.has(normalized)) return false;
-    seen.add(normalized);
-    return true;
-  });
+// Export the uniqueWarnings function so it can be used in CourseSelector
+export function uniqueWarnings(warnings) {
+  return [...new Set(warnings)];
 }
 
 // Style constants

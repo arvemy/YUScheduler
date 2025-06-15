@@ -9,7 +9,6 @@ import apiService from "./services/api";
 
 // Lazy load large components
 const CourseSelector = lazy(() => import("./components/CourseSelector"));
-const ScheduleResults = lazy(() => import("./components/ScheduleResults"));
 const WelcomeTutorial = lazy(() => import("./components/WelcomeTutorial"));
 
 function AppContent() {
@@ -213,27 +212,16 @@ function AppContent() {
             {/* Main content */}
             <Box>
               <Suspense fallback={<Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>}>
-                {/* Show course selector if no schedule has been generated, or show results */}
-                {!hasGenerated ? (
-                  <CourseSelector
-                    onSchedule={handleSchedule}
-                    term={currentTerm}
-                    blockedHours={blockedHours}
-                    setBlockedHours={setBlockedHours}
-                  />
-                ) : (
-                  <ScheduleResults
-                    schedules={scheduleData.schedules}
-                    warnings={scheduleData.warnings || []}
-                    timeSlots={scheduleData.time_slots || []}
-                    daysOfWeek={scheduleData.days_of_week || []}
-                    selectedCourses={selectedCourses}
-                    hasGenerated={hasGenerated}
-                    blockedHours={blockedHours}
-                    setBlockedHours={setBlockedHours}
-                    onBack={() => setHasGenerated(false)}
-                  />
-                )}
+                <CourseSelector
+                  onSchedule={handleSchedule}
+                  term={currentTerm}
+                  blockedHours={blockedHours}
+                  setBlockedHours={setBlockedHours}
+                  scheduleData={scheduleData}
+                  selectedCourses={selectedCourses}
+                  hasGenerated={hasGenerated}
+                  resetSchedule={() => setHasGenerated(false)}
+                />
               </Suspense>
             </Box>
           </Paper>
