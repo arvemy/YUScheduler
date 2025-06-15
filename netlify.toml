@@ -1,7 +1,7 @@
 [build]
   base = "yuscheduler-frontend"
-  publish = "build/"
-  command = "npm run build"
+  publish = "yuscheduler-frontend/build"
+  command = "cd yuscheduler-frontend && npm run build"
 
 [[redirects]]
   from = "/*"
