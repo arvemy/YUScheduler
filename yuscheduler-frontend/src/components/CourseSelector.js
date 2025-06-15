@@ -100,8 +100,9 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
   // Default time slots and days
   const defaultTimeSlots = useMemo(() => [
     "08:40-09:30", "09:40-10:30", "10:40-11:30", "11:40-12:30",
-    "13:40-14:30", "14:40-15:30", "15:40-16:30", "16:40-17:30",
-    "17:40-18:30"
+    "12:40-13:30", "13:40-14:30", "14:40-15:30", "15:40-16:30",
+    "16:40-17:30", "17:40-18:30", "18:40-19:30", "19:40-20:30",
+    "20:40-21:30", "21:40-22:30"
   ], []);
 
   const defaultDaysOfWeek = useMemo(() => [
