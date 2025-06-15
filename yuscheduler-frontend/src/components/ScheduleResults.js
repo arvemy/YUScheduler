@@ -183,7 +183,7 @@ export const Timetable = React.memo(function Timetable({ schedule, timeSlots, da
   return (
     <>
       {schedule && schedule.sections && (
-        <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: "wrap" }}>
+        <Stack direction="row" spacing={1} sx={{ mb: 0.5, flexWrap: "wrap" }}>
           {schedule.sections.map(({ course, section }) => (
             <Chip
               key={course + section}

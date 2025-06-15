@@ -570,7 +570,7 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
                 variant="scrollable"
                 scrollButtons="auto"
                 sx={{
-                  mb: 2,
+                  mb: 0.5,
                   borderRadius: 3,
                   boxShadow: 2,
                   background: 'rgba(255,255,255,0.7)',
@@ -637,9 +637,9 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
             {showTable && (
               <Box>
                 {showScheduleResults ? (
-                  <Divider sx={{ my: 2 }} />
+                  <Divider sx={{ my: 1 }} />
                 ) : (
-                  <Divider sx={{ my: 2 }} />
+                  <Divider sx={{ my: 1 }} />
                 )}
                 <Timetable
                   schedule={showScheduleResults && schedules.length > 0 ? schedules[tab] : { sections: [] }}
