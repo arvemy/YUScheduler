@@ -23,13 +23,10 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import DownloadIcon from '@mui/icons-material/Download';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import ImageIcon from '@mui/icons-material/Image';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import apiService from "../services/api";
 import { useError } from "../contexts/ErrorContext";
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 // Import the Timetable component from ScheduleResults
 import { Timetable, uniqueWarnings } from './ScheduleResults';
@@ -109,7 +106,6 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
 
   // Schedule display state
   const [tab, setTab] = useState(0);
-  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const scheduleRef = React.useRef(null);
   const scrollRef = React.useRef(null);
 
@@ -243,17 +239,10 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
     setActiveGroup(null);
   };
 
-  // Menu for download options
-  const handleMenuClick = (event) => {
-    setMenuAnchorEl(event.currentTarget);
-  };
 
-  const handleMenuDownloadClose = () => {
-    setMenuAnchorEl(null);
-  };
 
   // Download schedule functionality
-  const handleDownload = async (type) => {
+  const handleDownload = async () => {
     if (!scheduleRef.current) return;
 
     // --- Begin robust fix: expand all containers and table ---
@@ -293,25 +282,10 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
         logging: false,
       });
 
-      if (type === 'pdf') {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-          orientation: 'landscape',
-          unit: 'mm',
-          format: 'a4',
-        });
-
-        const imgWidth = 297; // A4 width in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        pdf.save(`schedule-${tab + 1}.pdf`);
-      } else if (type === 'image') {
-        const link = document.createElement('a');
-        link.download = `schedule-${tab + 1}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      }
+      const link = document.createElement('a');
+      link.download = `schedule-${tab + 1}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     } catch (error) {
       console.error('Error generating download:', error);
     } finally {
@@ -325,7 +299,6 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
         table.style.maxWidth = originalTableMaxWidth ?? '';
       }
     }
-    handleMenuDownloadClose();
   };
 
   if (loading) {
@@ -549,14 +522,14 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
                   <Button
                     variant="contained"
                     startIcon={<DownloadIcon />}
-                    onClick={handleMenuClick}
+                    onClick={handleDownload}
                     sx={{
                       ...submitButtonStyle,
                       fontSize: 16,
                       letterSpacing: 0.5,
                       py: 1.2,
                     }}
-                    aria-label="Download schedule options"
+                    aria-label="Download schedule as image"
                   >
                     Download
                   </Button>
@@ -609,26 +582,6 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
                   />
                 ))}
               </Tabs>
-
-              {/* Download Menu */}
-              <Menu
-                anchorEl={menuAnchorEl}
-                open={Boolean(menuAnchorEl)}
-                onClose={handleMenuDownloadClose}
-              >
-                <MenuItem onClick={() => handleDownload('pdf')}>
-                  <ListItemIcon>
-                    <PictureAsPdfIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Download as PDF</ListItemText>
-                </MenuItem>
-                <MenuItem onClick={() => handleDownload('image')}>
-                  <ListItemIcon>
-                    <ImageIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Download as Image</ListItemText>
-                </MenuItem>
-              </Menu>
             </Box>
           )}
 
