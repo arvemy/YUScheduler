@@ -15,10 +15,14 @@ import {
   Grid,
   Autocomplete,
   Select,
+  Divider
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import apiService from "../services/api";
 import { useError } from "../contexts/ErrorContext";
+
+// Import the Timetable component from ScheduleResults
+import { Timetable } from './ScheduleResults';
 
 // Style constants
 const chipStyle = {
@@ -92,6 +96,17 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
   const [searchInput, setSearchInput] = useState("");
   const [error, setError] = useState(null);
   const { showError } = useError();
+
+  // Default time slots and days
+  const defaultTimeSlots = useMemo(() => [
+    "08:40-09:30", "09:40-10:30", "10:40-11:30", "11:40-12:30",
+    "13:40-14:30", "14:40-15:30", "15:40-16:30", "16:40-17:30",
+    "17:40-18:30"
+  ], []);
+
+  const defaultDaysOfWeek = useMemo(() => [
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
+  ], []);
 
   useEffect(() => {
     if (!term) return;
@@ -260,6 +275,24 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours }) {
               width: '100%',
             }}
           />
+
+          {/* Time Blocking Section */}
+          <Box>
+            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+              Block Hours (Click on cells to block/unblock time)
+            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <Timetable
+                timeSlots={defaultTimeSlots}
+                daysOfWeek={defaultDaysOfWeek}
+                blockedHours={blockedHours}
+                setBlockedHours={setBlockedHours}
+                schedule={{ sections: [] }} // Empty schedule for blocking only
+              />
+            </Box>
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
 
           {/* Selected Courses */}
           {selected.length > 0 && (

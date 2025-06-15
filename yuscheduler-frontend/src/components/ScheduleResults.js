@@ -96,7 +96,8 @@ const buttonStyle = {
   },
 };
 
-const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWeek, blockedHours, setBlockedHours, scrollRef }) {
+// Export the Timetable component so we can reuse it in CourseSelector
+export const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWeek, blockedHours, setBlockedHours, scrollRef }) {
   // Memoize grid and courseColorMap
   const { grid, courseColorMap } = useMemo(() => {
     const grid = {};
