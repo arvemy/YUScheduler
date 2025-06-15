@@ -188,6 +188,7 @@ function AppContent() {
                   onChange={handleChangeTerm}
                   size="small"
                   displayEmpty
+                  aria-label="Select academic term"
                   sx={{
                     mt: 1,
                     minWidth: { xs: 140, sm: 180, md: 220 },

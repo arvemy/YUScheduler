@@ -370,6 +370,7 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
             inputValue={searchInput}
             onInputChange={(_, value) => setSearchInput(value)}
             open={searchInput.trim().length > 0}
+            aria-label="Search and select courses"
             filterOptions={(options, { inputValue }) =>
               inputValue.trim() === ''
                 ? []
@@ -425,6 +426,7 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
                           size="small"
                           value={sectionChoices[course] || 'any'}
                           onChange={(e) => handleSectionChange(course, e.target.value)}
+                          aria-label={`Select section for ${course}`}
                           sx={{
                             minWidth: 60,
                             maxWidth: 90,
@@ -556,6 +558,7 @@ function CourseSelector({ onSchedule, blockedHours, term, setBlockedHours, sched
                 onChange={(_, v) => setTab(v)}
                 variant="scrollable"
                 scrollButtons="auto"
+                aria-label="Generated schedule tabs"
                 sx={{
                   mb: 2,
                   borderRadius: 3,
