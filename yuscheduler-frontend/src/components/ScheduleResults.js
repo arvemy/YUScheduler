@@ -350,7 +350,16 @@ const Timetable = React.memo(function Timetable({ schedule, timeSlots, daysOfWee
   );
 });
 
-const ScheduleResults = React.memo(function ScheduleResults({ schedules, warnings, timeSlots, daysOfWeek, selectedCourses, hasGenerated, blockedHours, setBlockedHours }) {
+const ScheduleResults = React.memo(function ScheduleResults({
+  schedules = [],
+  warnings = [],
+  timeSlots = [],
+  daysOfWeek = [],
+  selectedCourses = [],
+  hasGenerated = false,
+  blockedHours = [],
+  setBlockedHours
+}) {
   const [tab, setTab] = React.useState(0);
   const scheduleRef = React.useRef(null);
   const scrollRef = React.useRef(null);
@@ -504,7 +513,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
           <Divider sx={{ mb: 2 }} />
         </Box>
       )}
-      {schedules.length > 0 && (
+      {schedules && schedules.length > 0 && (
         <>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" sx={{ fontSize: { xs: 16, sm: 20, md: 24 } }}>
@@ -594,7 +603,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
       <Box ref={scheduleRef}>
         {showTable && (
           <Timetable
-            schedule={schedules.length > 0 ? schedules[tab] : { sections: [] }}
+            schedule={schedules && schedules.length > 0 && tab !== undefined ? schedules[tab] : { sections: [] }}
             timeSlots={timeSlots}
             daysOfWeek={displayDaysOfWeek}
             blockedHours={blockedHours}
@@ -603,7 +612,7 @@ const ScheduleResults = React.memo(function ScheduleResults({ schedules, warning
           />
         )}
       </Box>
-      {hasGenerated && schedules.length === 0 && warnings.length === 0 && (
+      {hasGenerated && schedules && schedules.length === 0 && warnings && warnings.length === 0 && (
         <Alert severity="info" sx={{ borderRadius: 2, boxShadow: 1, fontSize: 16 }}>No valid schedules found.</Alert>
       )}
     </Paper>
