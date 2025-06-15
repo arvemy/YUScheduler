@@ -29,7 +29,7 @@ const Footer = () => {
           fontFamily: 'Montserrat, Roboto, Arial',
         }}
       >
-        Made with ❤️
+        Made with ❤️ by Arda Korkmaz
       </Typography>
     </Box>
   );
