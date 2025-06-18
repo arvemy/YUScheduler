@@ -71,4 +71,4 @@ MIT License - see [LICENSE](../LICENSE) for details.
 
 ---
 
-_Made with ❤️ for students._
+_Made with ❤️ by Arda Korkmaz._
