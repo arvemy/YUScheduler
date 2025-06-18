@@ -56,14 +56,13 @@ src/
 - **Material-UI** - Component library
 - **Axios** - HTTP client
 - **html2canvas** - Schedule export to image
-- **jsPDF** - Schedule export to PDF
 
 ## 🎨 Features
 
 - Responsive design for all devices
 - Real-time schedule generation
 - Interactive time blocking
-- PDF/Image export functionality
+- Image export functionality
 - Clean Material Design interface
 
 ## 📝 License

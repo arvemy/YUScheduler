@@ -15,19 +15,12 @@ import {
   Chip,
   Divider,
   Button,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
   Fade,
 } from "@mui/material";
 import DownloadIcon from '@mui/icons-material/Download';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import ImageIcon from '@mui/icons-material/Image';
 import LockIcon from '@mui/icons-material/Lock';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 // Color palette for courses
 const COURSE_COLORS = [
@@ -360,22 +353,15 @@ const ScheduleResults = React.memo(function ScheduleResults({
   const [tab, setTab] = React.useState(0);
   const scheduleRef = React.useRef(null);
   const scrollRef = React.useRef(null);
-  const [anchorEl, setAnchorEl] = React.useState(null);
 
   // Reset tab to 0 when schedules change
   useEffect(() => {
     setTab(0);
   }, [schedules]);
 
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
-  const handleDownload = async (type) => {
+  const handleDownload = async () => {
     if (!scheduleRef.current) return;
 
     // --- Begin robust fix: expand all containers and table ---
@@ -415,25 +401,10 @@ const ScheduleResults = React.memo(function ScheduleResults({
         logging: false,
       });
 
-      if (type === 'pdf') {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-          orientation: 'landscape',
-          unit: 'mm',
-          format: 'a4',
-        });
-
-        const imgWidth = 297; // A4 width in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        pdf.save(`schedule-${tab + 1}.pdf`);
-      } else if (type === 'image') {
-        const link = document.createElement('a');
-        link.download = `schedule-${tab + 1}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      }
+      const link = document.createElement('a');
+      link.download = `schedule-${tab + 1}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     } catch (error) {
       console.error('Error generating download:', error);
     } finally {
@@ -447,7 +418,6 @@ const ScheduleResults = React.memo(function ScheduleResults({
         table.style.maxWidth = originalTableMaxWidth ?? '';
       }
     }
-    handleMenuClose();
   };
 
   // Always show the table, even if no schedules yet
@@ -528,7 +498,7 @@ const ScheduleResults = React.memo(function ScheduleResults({
             <Button
               variant="contained"
               startIcon={<DownloadIcon />}
-              onClick={handleMenuClick}
+              onClick={handleDownload}
               sx={{
                 ...buttonStyle,
                 ml: 2,
@@ -536,28 +506,10 @@ const ScheduleResults = React.memo(function ScheduleResults({
                 letterSpacing: 0.5,
                 py: 1.2,
               }}
-              aria-label="Download schedule options"
+              aria-label="Download schedule as image"
             >
-              Download Schedule
+              Download
             </Button>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-            >
-              <MenuItem onClick={() => handleDownload('pdf')}>
-                <ListItemIcon>
-                  <PictureAsPdfIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Download as PDF</ListItemText>
-              </MenuItem>
-              <MenuItem onClick={() => handleDownload('image')}>
-                <ListItemIcon>
-                  <ImageIcon fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>Download as Image</ListItemText>
-              </MenuItem>
-            </Menu>
           </Box>
           <Tabs
             value={tab}

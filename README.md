@@ -20,7 +20,7 @@ YUScheduler solves a real-world problem for Yaşar University students by automa
 - 🔍 **Smart Course Search** - Fast, intuitive course selection with department filtering
 - 📱 **Responsive Design** - Fully optimized experience across desktop and mobile devices
 - 📊 **Visual Schedule Display** - Clear, user-friendly visualization of generated schedules
-- 📤 **Export Functionality** - Download schedules as PDF or image files
+- 📤 **Export Functionality** - Download schedules as image files
 - ⚡ **Performance Optimization** - Fast algorithm for schedule generation with caching
 
 ## 🛠️ Technologies

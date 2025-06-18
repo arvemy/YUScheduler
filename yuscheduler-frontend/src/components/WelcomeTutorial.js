@@ -9,34 +9,34 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const TIPS = [
   {
-    icon: <SchoolIcon color="primary" />, 
+    icon: <SchoolIcon color="primary" />,
     title: 'Select Courses',
     desc: 'Search and select the courses you want to include in your schedule.'
   },
   {
-    icon: <AccessTimeIcon color="primary" />, 
+    icon: <AccessTimeIcon color="primary" />,
     title: 'Block Unavailable Hours',
     desc: 'Click on timetable cells to block hours when you are unavailable. The scheduler will avoid these times.'
   },
   {
-    icon: <ListAltIcon color="primary" />, 
+    icon: <ListAltIcon color="primary" />,
     title: 'Section Selection',
     desc: 'If a course has multiple sections, you can choose a specific section or let the scheduler pick any.'
   },
   {
-    icon: <CalendarMonthIcon color="primary" />, 
+    icon: <CalendarMonthIcon color="primary" />,
     title: 'Term Selection',
     desc: 'Switch between academic terms using the term chip at the top.'
   },
   {
-    icon: <EventAvailableIcon color="primary" />, 
+    icon: <EventAvailableIcon color="primary" />,
     title: 'Generate Schedules',
     desc: 'Click "Generate Schedules" to see all possible timetables.'
   },
   {
-    icon: <DownloadIcon color="primary" />, 
+    icon: <DownloadIcon color="primary" />,
     title: 'Download Schedules',
-    desc: 'Download your favorite schedule as a PDF or image for easy reference.'
+    desc: 'Download your favorite schedule as an image for easy reference.'
   },
 ];
 
