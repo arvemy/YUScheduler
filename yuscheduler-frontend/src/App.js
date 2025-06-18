@@ -2,6 +2,7 @@ import React, { useState, useEffect, Suspense, lazy } from "react";
 import { CssBaseline, Box, Container, Typography, Paper, Divider, IconButton, Link, MenuItem, Select, Skeleton, CircularProgress } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Footer from "./components/Footer";
 import { ErrorProvider } from "./contexts/ErrorContext";
 import ErrorDisplay from "./components/ErrorDisplay";
@@ -76,6 +77,28 @@ function AppContent() {
               position: 'relative'
             }}
           >
+            {/* Help Button */}
+            <IconButton
+              onClick={() => setTutorialOpen(true)}
+              aria-label="Show tutorial"
+              sx={{
+                position: 'absolute',
+                top: { xs: 8, sm: 16 },
+                right: { xs: 8, sm: 16 },
+                color: 'primary.main',
+                backgroundColor: '#e3f2fd',
+                borderRadius: 2,
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  backgroundColor: '#bbdefb',
+                  transform: 'scale(1.05)',
+                },
+                zIndex: 1
+              }}
+              size="small"
+            >
+              <HelpOutlineIcon fontSize="small" />
+            </IconButton>
             {/* Header */}
             <Box
               sx={{
@@ -261,10 +284,7 @@ function AppContent() {
       <Suspense fallback={null}>
         <WelcomeTutorial
           open={tutorialOpen}
-          onClose={() => {
-            setTutorialOpen(false);
-            localStorage.setItem('yuSchedulerHideTutorial', 'true');
-          }}
+          setOpen={setTutorialOpen}
         />
       </Suspense>
 
