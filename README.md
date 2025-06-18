@@ -11,7 +11,7 @@ A modern, Yaşar University course scheduler application that helps students pla
 
 ## 💡 Project Overview
 
-YUScheduler solves a real-world problem for Yaşar University students by automating the complex task of creating conflict-free class schedules while accommodating personal time constraints.
+YUScheduler solves a problem for Yaşar University students by automating the complex task of creating conflict-free class schedules while accommodating personal time constraints.
 
 ### Key Features
 
@@ -71,7 +71,7 @@ The application follows a modern client-server architecture:
 - **Algorithmic Challenge**: Implemented an efficient algorithm to generate valid schedules given multiple constraints
 - **Error Handling**: Comprehensive error handling with specific feedback for constraint conflicts
 - **Performance**: Optimized data processing with caching for frequently accessed course data
-- **Clean Architecture**: Separation of concerns between UI components and business logic
+- **Clean Architecture**: Separation of concerns between UI components 
 - **API Design**: RESTful API with detailed status codes and error messages
 
 ## 📝 What I Learned
